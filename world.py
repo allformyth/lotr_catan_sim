@@ -1,4 +1,3 @@
-from constants import *
 import world_unit
 import random
 

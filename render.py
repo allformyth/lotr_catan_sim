@@ -1,6 +1,5 @@
 import pygame
-from constants import *
-from ui import *
+from locals.ui import *
 import math
 
 points = []
