@@ -1,6 +1,3 @@
-from constants import *
-
-
 class Territory:
     def __init__(self, col_index, row_index, resource, number):
         self.col_index = col_index

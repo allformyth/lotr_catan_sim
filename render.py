@@ -1,6 +1,5 @@
 import pygame
 from constants import *
-from ui import *
 import math
 
 points = []
@@ -11,7 +10,7 @@ def init(grids, lands):
     pygame.display.set_mode(SCREEN_SIZE)
     render_grids(grids)
     render_lands(lands)
-    render_ui()
+    #render_ui()
 
 
 def render_grids(grids):
@@ -53,31 +52,46 @@ def render_land(land):
     pygame.draw.circle(screen, WHITE, vertex_coordinate, VERTEX_SIZE)
 
 
-def render_update_screen():
-    pygame.display.update()
+def render_players(players):
+    for player in players:
+        render_player(player)
 
 
-def render_ui():
+def render_player(player):
+    screen = pygame.display.get_surface()
+    player_coordinate = get_grid_middle_point(player.pos[0], player.pos[1])
+    player_width = 20
+    pygame.draw.rect(screen, BLACK, [player_coordinate[0] - int(player_width / 2),player_coordinate[1]-int(player_width / 2),20,20])
+
+
+def render_ui(players):
     screen = pygame.display.get_surface()
     pygame.draw.line(screen, WHITE, (MAP_SIZE[0], 0), (MAP_SIZE[0], SCREEN_SIZE[1]), UI_LINE_WIDTH)
     pygame.draw.line(screen, WHITE, (0, MAP_SIZE[1]), (SCREEN_SIZE[0], MAP_SIZE[1]), UI_LINE_WIDTH)
-    font = pygame.font.SysFont(None, UI_TEXT_SIZE)
-    screen_text = font.render(LABEL_NAME_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_NAME_POSITION)
 
-    screen_text = font.render(LABEL_GOLD_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_GOLD_POSITION)
-    screen_text = font.render(LABEL_WOOD_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_WOOD_POSITION)
-    screen_text = font.render(LABEL_BRICK_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_BRICK_POSITION)
-    screen_text = font.render(LABEL_IRON_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_IRON_POSITION)
-    screen_text = font.render(LABEL_IRON_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_IRON_POSITION)
+    render_label(LABEL_PLAYER_ONE_CONTENT, LABEL_PLAYER_ONE_POSITION)
+    render_label(LABEL_POSX_CONTENT, LABEL_POSX_POSITION)
+    render_label(LABEL_POSY_CONTENT, LABEL_POSY_POSITION)
+    render_label(LABEL_GOLD_CONTENT, LABEL_GOLD_POSITION)
+    render_label(LABEL_WOOD_CONTENT, LABEL_WOOD_POSITION)
+    render_label(LABEL_BRICK_CONTENT, LABEL_BRICK_POSITION)
+    render_label(LABEL_IRON_CONTENT, LABEL_IRON_POSITION)
+    render_label(LABEL_SCORE_CONTENT, LABEL_SCORE_POSITION)
 
-    screen_text = font.render(LABEL_SCORE_CONTENT, True, WHITE)
-    screen.blit(screen_text, LABEL_SCORE_POSITION)
+    render_player_position_ui(players[0])
+
+
+def render_player_position_ui(player):
+    render_label(str(player.pos[1]), [1000, 20])
+    render_label(str(player.pos[0]), [1000, 40])
+
+
+def render_label(text, position):
+    font = pygame.font.SysFont('Calibri', UI_TEXT_SIZE)
+    screen = pygame.display.get_surface()
+    screen_text = font.render(text, True, WHITE)
+    screen.blit(screen_text, position)
+
 
 def get_grid_middle_point(grid_pos_col, grid_pos_row):
     middle_point = [0, 0]
