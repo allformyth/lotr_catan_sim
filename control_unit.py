@@ -1,4 +1,4 @@
-from locals.constants import *
+from constants import *
 
 players = []
 

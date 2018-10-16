@@ -1,38 +1,40 @@
 import world_unit
 import random
 
-
-grids = []
-numbers = []
-lands=[]
+tiles = []
+token_numbers = []
+corners = []
 
 
 def init(game_size):
-    tmp_list = [2] + [3] * 2 + [4]*2 + [5]*2 + [6]*2 + [7]*2 + [8]*2 + [9]*2 + [10] * 2 + [11]*2 +[12]
-    tmp_list2 = tmp_list * 3
-    numbers.extend(tmp_list2)
+    max_cols, max_rows = game_size[0], game_size[1]
+    tmp_list = [2] + [3] * 2 + [4] * 2 + [5] * 2 + [6] * 2 + [7] * 2 + [8] * 2 + [9] * 2 + [10] * 2 + [11] * 2 + [12]
+    tmp_list = tmp_list * 3
+    token_numbers.extend(tmp_list)
 
-    for x in range(game_size[0]+2):
-        grids.append([])
-        for y in range(game_size[1]+2):
-            random_resource = random.randint(1, 4)
-            if x == 0 or x == game_size[0]+1 or y == 0 or y == game_size[1]+1:
-                random_resource = -1
-                number = -1
-            else:
-                random_index = random.randint(0, len(numbers) - 1)
-                number = numbers.pop(random_index)
-            grids[x].append(world_unit.Territory(x, y, random_resource, number))
+    # 生成Grids - 最外圈为地图边界
+    for x in range(max_cols + 2):
+        tiles.append([])
+        # 边界地块也要生成出来
+        for y in range(max_rows + 2):
+            random_resource = -1
+            tmp_token_number = -1
+            if x != 0 and x != max_cols + 1 and y != 0 and y != max_rows + 1:
+                random_resource = random.randint(1, 4)
+                random_index = random.randint(0, len(token_numbers) - 1)
+                tmp_token_number = token_numbers.pop(random_index)
+            tiles[x].append(world_unit.Territory(x, y, random_resource, tmp_token_number))
 
-    for x in range(game_size[0]):
-        for y in range(game_size[1]):
-            adjcents = get_territories_of_adjacents(grids[x+1][y+1])
-            land1 = world_unit.Land([adjcents[0], adjcents[1], grids[x+1][y+1]])
-            land2 = world_unit.Land([adjcents[1], adjcents[2], grids[x + 1][y + 1]])
-            land3 = world_unit.Land([adjcents[2], adjcents[3], grids[x + 1][y + 1]])
-            land4 = world_unit.Land([adjcents[3], adjcents[4], grids[x + 1][y + 1]])
-            land5 = world_unit.Land([adjcents[4], adjcents[5], grids[x + 1][y + 1]])
-            land6 = world_unit.Land([adjcents[5], adjcents[0], grids[x + 1][y + 1]])
+    # 生成 Corners
+    for x in range(max_cols):
+        for y in range(max_rows):
+            adjcents = get_territories_of_adjacents(tiles[x + 1][y + 1])
+            land1 = world_unit.Land([adjcents[0], adjcents[1], tiles[x + 1][y + 1]])
+            land2 = world_unit.Land([adjcents[1], adjcents[2], tiles[x + 1][y + 1]])
+            land3 = world_unit.Land([adjcents[2], adjcents[3], tiles[x + 1][y + 1]])
+            land4 = world_unit.Land([adjcents[3], adjcents[4], tiles[x + 1][y + 1]])
+            land5 = world_unit.Land([adjcents[4], adjcents[5], tiles[x + 1][y + 1]])
+            land6 = world_unit.Land([adjcents[5], adjcents[0], tiles[x + 1][y + 1]])
 
             try_add_to_list(land1)
             try_add_to_list(land2)
@@ -44,13 +46,13 @@ def init(game_size):
 
 def try_add_to_list(land):
     if not is_in_list(land):
-        lands.append(land)
+        corners.append(land)
 
 
 def is_in_list(land):
 
     result = False
-    for ld in lands:
+    for ld in corners:
         if is_the_same_territory(ld, land):
             result = True
     return result
@@ -76,7 +78,7 @@ def get_lands_of_one_territory(territory_pos):
 
 
 def get_gird(pos_col, pos_row):
-    return grids[pos_col, pos_row]
+    return tiles[pos_col, pos_row]
 
 
 def get_territory_index_of_adjacents(territory):
@@ -110,12 +112,12 @@ def get_territories_of_adjacents(territory):
         tmp_left_down = (territory.col_index - 1, territory.row_index + 1)
         tmp_right_down = (territory.col_index + 1, territory.row_index + 1)
 
-    adjacents[2] = grids[tmp_up[0]][tmp_up[1]]
-    adjacents[5] = grids[tmp_down[0]][tmp_down[1]]
-    adjacents[1] = grids[tmp_left_up[0]][tmp_left_up[1]]
-    adjacents[3] = grids[tmp_right_up[0]][tmp_right_up[1]]
-    adjacents[0] = grids[tmp_left_down[0]][tmp_left_down[1]]
-    adjacents[4] = grids[tmp_right_down[0]][tmp_right_down[1]]
+    adjacents[2] = tiles[tmp_up[0]][tmp_up[1]]
+    adjacents[5] = tiles[tmp_down[0]][tmp_down[1]]
+    adjacents[1] = tiles[tmp_left_up[0]][tmp_left_up[1]]
+    adjacents[3] = tiles[tmp_right_up[0]][tmp_right_up[1]]
+    adjacents[0] = tiles[tmp_left_down[0]][tmp_left_down[1]]
+    adjacents[4] = tiles[tmp_right_down[0]][tmp_right_down[1]]
 
     return adjacents
 

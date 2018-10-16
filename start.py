@@ -1,14 +1,16 @@
-import world
 import pygame
-from locals.constants import *
+import world
+import render
+
+from constants import *
 from pygame.locals import *
 import control_unit
-import render
+
 
 
 def update_screen():
-    render.render_grids(world.grids)
-    render.render_lands(world.lands)
+    render.render_grids(world.tiles)
+    render.render_lands(world.corners)
     render.render_ui(control_unit.players)
     render.render_players(control_unit.players)
     pygame.display.update()
@@ -17,7 +19,7 @@ def update_screen():
 def start():
     pygame.init()
     world.init(GAME_SIZE)
-    render.init(world.grids, world.lands)
+    render.init(world.tiles, world.corners)
     control_unit.init_player()
     clock = pygame.time.Clock()
     game_exit = False
