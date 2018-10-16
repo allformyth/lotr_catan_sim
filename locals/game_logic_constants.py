@@ -1,18 +1,5 @@
 # encoding: utf-8
 from locals.constants import *
 
-INIT_MONEY = 10000
-INIT_GOLD = 100
 
-INIT_WOOD = 100
-INIT_IRON = 100
-INIT_BRICK = 100
-INIT_SHEEP = 100
-INIT_WHEAT = 100
 
-BORN_POINT = (100, 100)
-MOVE_SPEED = 10
-
-MOVING = 1
-REST = 2
-ATTACKING = 3

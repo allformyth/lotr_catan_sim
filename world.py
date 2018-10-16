@@ -124,5 +124,3 @@ def roll_dice():
     for i in range(2):
         result = result + random.randint(1, 6)
     return result
-
-
