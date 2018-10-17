@@ -77,8 +77,8 @@ def get_lands_of_one_territory(territory_pos):
     return result
 
 
-def get_gird(pos_col, pos_row):
-    return tiles[pos_col, pos_row]
+def get_grid(pos_col, pos_row):
+    return tiles[pos_col][pos_row]
 
 
 def get_territory_index_of_adjacents(territory):
@@ -90,35 +90,25 @@ def get_territory_index_of_adjacents(territory):
 
 
 def get_territories_of_adjacents(territory):
-    # left_down,left_up,up,right_up,right_down,down
+    # oder left_down,left_up,up,right_up,right_down,down
+    # 顺序 左下，左上，上，右上，右下，下
     adjacents = [0, 0, 0, 0, 0, 0]
-    # up, down
-    tmp_up = (territory.col_index, territory.row_index - 1)
-    tmp_down = (territory.col_index, territory.row_index + 1)
-
-    # even_row
+    # even_col
     if territory.col_index % 2 == 0:
-        # left_up, right_up
-        tmp_left_up = (territory.col_index - 1, territory.row_index - 1)
-        tmp_right_up = (territory.col_index + 1, territory.row_index - 1)
-        # left_down, right_down
-        tmp_left_down = (territory.col_index - 1, territory.row_index)
-        tmp_right_down = (territory.col_index + 1, territory.row_index)
+        adjacents[0] = get_grid(territory.col_index - 1, territory.row_index)
+        adjacents[1] = get_grid(territory.col_index - 1, territory.row_index - 1)
+        adjacents[2] = get_grid(territory.col_index, territory.row_index - 1)
+        adjacents[3] = get_grid(territory.col_index + 1, territory.row_index - 1)
+        adjacents[4] = get_grid(territory.col_index + 1, territory.row_index)
+        adjacents[5] = get_grid(territory.col_index, territory.row_index + 1)
+    # odd_col
     else:
-        # left_up, right_up
-        tmp_left_up = (territory.col_index - 1, territory.row_index)
-        tmp_right_up = (territory.col_index + 1, territory.row_index)
-        # left_down, right_down
-        tmp_left_down = (territory.col_index - 1, territory.row_index + 1)
-        tmp_right_down = (territory.col_index + 1, territory.row_index + 1)
-
-    adjacents[2] = tiles[tmp_up[0]][tmp_up[1]]
-    adjacents[5] = tiles[tmp_down[0]][tmp_down[1]]
-    adjacents[1] = tiles[tmp_left_up[0]][tmp_left_up[1]]
-    adjacents[3] = tiles[tmp_right_up[0]][tmp_right_up[1]]
-    adjacents[0] = tiles[tmp_left_down[0]][tmp_left_down[1]]
-    adjacents[4] = tiles[tmp_right_down[0]][tmp_right_down[1]]
-
+        adjacents[0] = get_grid(territory.col_index - 1, territory.row_index + 1)
+        adjacents[1] = get_grid(territory.col_index - 1, territory.row_index)
+        adjacents[2] = get_grid(territory.col_index, territory.row_index - 1)
+        adjacents[3] = get_grid(territory.col_index + 1, territory.row_index)
+        adjacents[4] = get_grid(territory.col_index + 1, territory.row_index + 1)
+        adjacents[5] = get_grid(territory.col_index, territory.row_index + 1)
     return adjacents
 
 def roll_dice():
