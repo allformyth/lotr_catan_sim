@@ -1,3 +1,4 @@
+from pygame.locals import *
 # encoding: utf-8
 # module constants
 
@@ -36,6 +37,8 @@ YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
 BLUE = (0, 255, 255)
 
+RESOURCE_COLOR = {0: WHITE, 1: RED, 2: GREEN, 3: YELLOW, 4: BLUE}
+
 # Display Map
 SCREEN_SIZE = (1280, 720)
 MAP_SIZE = (800, 600)
@@ -53,6 +56,13 @@ MAP_NUM_FONT_SIZE = 35
 
 #Render setting
 FPS = 15
+
+# 按键控制
+P1_MOVE_UP = K_w
+P1_MOVE_DOWN = K_s
+P1_MOVE_LEFT = K_a
+P1_MOVE_RIGHT = K_d
+P1_RECRUIT = K_r
 
 #角色信息界面
 LABEL_PLAYER_ONE_CONTENT = "Player1:"

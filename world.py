@@ -1,10 +1,14 @@
-import world_unit
+import territory
+import city
 import random
+import math
+import player
+from constants import *
 
 tiles = []
 token_numbers = []
 corners = []
-
+players = []
 
 def init(game_size):
     max_cols, max_rows = game_size[0], game_size[1]
@@ -17,54 +21,58 @@ def init(game_size):
         tiles.append([])
         # 边界地块也要生成出来
         for y in range(max_rows + 2):
-            random_resource = -1
+            random_resource = 0
             tmp_token_number = -1
             if x != 0 and x != max_cols + 1 and y != 0 and y != max_rows + 1:
                 random_resource = random.randint(1, 4)
                 random_index = random.randint(0, len(token_numbers) - 1)
                 tmp_token_number = token_numbers.pop(random_index)
-            tiles[x].append(world_unit.Territory(x, y, random_resource, tmp_token_number))
+            tiles[x].append(territory.Territory(x, y, random_resource, tmp_token_number))
+
 
     # 生成 Corners
     for x in range(max_cols):
         for y in range(max_rows):
-            adjcents = get_territories_of_adjacents(tiles[x + 1][y + 1])
-            land1 = world_unit.Land([adjcents[0], adjcents[1], tiles[x + 1][y + 1]])
-            land2 = world_unit.Land([adjcents[1], adjcents[2], tiles[x + 1][y + 1]])
-            land3 = world_unit.Land([adjcents[2], adjcents[3], tiles[x + 1][y + 1]])
-            land4 = world_unit.Land([adjcents[3], adjcents[4], tiles[x + 1][y + 1]])
-            land5 = world_unit.Land([adjcents[4], adjcents[5], tiles[x + 1][y + 1]])
-            land6 = world_unit.Land([adjcents[5], adjcents[0], tiles[x + 1][y + 1]])
+            self_grid = get_grid(x + 1, y + 1)
+            adjcents = get_territories_of_adjacents(self_grid)
 
-            try_add_to_list(land1)
-            try_add_to_list(land2)
-            try_add_to_list(land3)
-            try_add_to_list(land4)
-            try_add_to_list(land5)
-            try_add_to_list(land6)
+            try_add_to_list(city.City([adjcents[0], adjcents[1], self_grid]))
+            try_add_to_list(city.City([adjcents[1], adjcents[2], self_grid]))
+            try_add_to_list(city.City([adjcents[2], adjcents[3], self_grid]))
+            try_add_to_list(city.City([adjcents[3], adjcents[4], self_grid]))
+            try_add_to_list(city.City([adjcents[4], adjcents[5], self_grid]))
+            try_add_to_list(city.City([adjcents[5], adjcents[0], self_grid]))
+    # 生成 Player
+    players.append(player.Player())
+    return True
 
+
+def update(screen):
+    for tile_col in tiles:
+        for tile in tile_col:
+            tile.on_render(screen)
+    for land in corners:
+        land.on_render(screen)
+    for player in players:
+        player.on_render(screen)
+
+
+def get_lands_by_player_id(id):
+    result = []
+    for ld in corners:
+        if ld.owner == id:
+            result.append(ld)
+    return result
 
 def try_add_to_list(land):
-    if not is_in_list(land):
+    if corners:
+        for ld in corners:
+            if ld.guid == land.guid:
+                break
+        else:
+            corners.append(land)
+    else:
         corners.append(land)
-
-
-def is_in_list(land):
-
-    result = False
-    for ld in corners:
-        if is_the_same_territory(ld, land):
-            result = True
-    return result
-
-
-def is_the_same_territory(ld:world_unit.Land, land:world_unit.Land):
-    result = False
-    if ld.adjcents_territory[0].cpm_num == land.adjcents_territory[0].cpm_num:
-        if ld.adjcents_territory[1].cpm_num == land.adjcents_territory[1].cpm_num:
-            if ld.adjcents_territory[2].cpm_num == land.adjcents_territory[2].cpm_num:
-                result = True
-    return result
 
 
 def get_land_by_three_territory(territory1_pos, territory2_pos, territory3_pos):
@@ -116,3 +124,47 @@ def roll_dice():
     for i in range(2):
         result = result + random.randint(1, 6)
     return result
+
+def get_grid_middle_point(grid_pos_col, grid_pos_row):
+    middle_point = [0, 0]
+    if grid_pos_col % 2 == 0:
+        middle_point[0] = MIDDLE_POINT_OF_FIRST_GRID[0] + (grid_pos_col * HEX_SIZE * 3 / 2) * HEX_SPACING_RATE
+        middle_point[1] = MIDDLE_POINT_OF_FIRST_GRID[1] + (grid_pos_row * math.sqrt(3) * HEX_SIZE ) * HEX_SPACING_RATE
+    else:
+        middle_point[0] = MIDDLE_POINT_OF_FIRST_GRID[0] + (HEX_SIZE * 3 / 2 + (grid_pos_col - 1) * HEX_SIZE * 3/2) * HEX_SPACING_RATE
+        middle_point[1] = MIDDLE_POINT_OF_FIRST_GRID[1] + (math.sqrt(3) * HEX_SIZE / 2 + grid_pos_row * math.sqrt(3) * HEX_SIZE) * HEX_SPACING_RATE
+        #
+    return middle_point
+
+
+def get_grid_vertex(middle_point=(100, 100)):
+    vertex_coordinates = []
+    left_point = (middle_point[0] - HEX_SIZE, middle_point[1])
+    left_bottom_point = (middle_point[0] - HEX_SIZE / 2, middle_point[1] + math.sqrt(3) / 2 * HEX_SIZE)
+    right_bottom_point = (middle_point[0] + HEX_SIZE / 2, middle_point[1] + math.sqrt(3) / 2 * HEX_SIZE)
+    right_point = (middle_point[0] + HEX_SIZE, middle_point[1])
+    right_up_point = (middle_point[0] + HEX_SIZE / 2, middle_point[1] - math.sqrt(3) / 2 * HEX_SIZE)
+    left_up_point = (middle_point[0] - HEX_SIZE / 2, middle_point[1] - math.sqrt(3) / 2 * HEX_SIZE)
+    vertex_coordinates.append(left_point)
+    vertex_coordinates.append(left_bottom_point)
+    vertex_coordinates.append(right_bottom_point)
+    vertex_coordinates.append(right_point)
+    vertex_coordinates.append(right_up_point)
+    vertex_coordinates.append(left_up_point)
+    return vertex_coordinates
+
+def get_vertex_point(land):
+    vertex_coordinate = [0,0]
+
+    t1 = land.adjcents_territory[0]
+    t2 = land.adjcents_territory[1]
+    t3 = land.adjcents_territory[2]
+
+    p1 = get_grid_middle_point(t1.col_index, t1.row_index)
+    p2 = get_grid_middle_point(t2.col_index, t2.row_index)
+    p3 = get_grid_middle_point(t3.col_index, t3.row_index)
+
+    vertex_coordinate[0] = int((p1[0] + p2[0] + p3[0])/3)
+    vertex_coordinate[1] = int((p1[1] + p2[1] + p3[1])/3)
+
+    return vertex_coordinate

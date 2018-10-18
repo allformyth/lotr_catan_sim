@@ -3,16 +3,10 @@ import world
 import render
 
 from constants import *
-from pygame.locals import *
-import control_unit
-
+import player
 
 
 def update_screen():
-    render.render_grids(world.tiles)
-    render.render_lands(world.corners)
-    render.render_ui(control_unit.players)
-    render.render_players(control_unit.players)
     pygame.display.update()
 
 
@@ -20,25 +14,29 @@ def start():
     pygame.init()
     world.init(GAME_SIZE)
     render.init(world.tiles, world.corners)
-    control_unit.init_player()
-    clock = pygame.time.Clock()
+    # clock = pygame.time.Clock()
     game_exit = False
-    player = control_unit.players[0]
+    player = world.players[0]
+    render.render_ui(world.players)
+    screen = pygame.display.get_surface()
     while not game_exit:
+        world.update(screen)
         for event in pygame.event.get():
             if event.type == QUIT:
                 game_exit = True
             if event.type == KEYDOWN:
-                if event.key == K_a:
+                if event.key == P1_MOVE_LEFT:
                     player.move(-1, 0)
-                elif event.key == K_d:
+                elif event.key == P1_MOVE_RIGHT:
                     player.move(1, 0)
-                elif event.key == K_w:
+                elif event.key == P1_MOVE_UP:
                     player.move(0, -1)
-                elif event.key == K_s:
+                elif event.key == P1_MOVE_DOWN:
                     player.move(0, 1)
+                elif event.key == P1_RECRUIT:
+                    pass
         update_screen()
-        clock.tick(FPS)
+        # clock.tick(FPS)
     pygame.quit()
 
 
