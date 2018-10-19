@@ -55,7 +55,7 @@ HEX_SPACING_RATE = 1.2
 MAP_NUM_FONT_SIZE = 35
 
 #Render setting
-FPS = 15
+FPS = 10
 
 # 按键控制
 P1_MOVE_UP = K_w

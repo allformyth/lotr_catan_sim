@@ -1,10 +1,12 @@
 import render
 import pygame
 import world
+import math
+import map_
 from constants import *
 
 
-class Territory(render.IRender):
+class Territory:
     def __init__(self, col_index, row_index, resource, number):
         self.col_index = col_index
         self.row_index = row_index
@@ -13,8 +15,11 @@ class Territory(render.IRender):
         self.number = number
         self.is_mining = False
 
-        self.middle_point = world.get_grid_middle_point(self.col_index, self.row_index)
-        self.grid_vertexes = world.get_grid_vertex(self.middle_point)
+        self.middle_point = map_.calc_grid_middle_point_coordinate(self.col_index, self.row_index)
+        self.grid_vertexes = map_.calc_vertexes_coordinate_of_grid(self.middle_point)
+
+        self.monster_level = self.col_index + self.row_index
+        self.monster_power = self.monster_level * 10
 
     def get_pos(self):
         return self.col_index, self.row_index
@@ -22,7 +27,7 @@ class Territory(render.IRender):
     def __repr__(self):
         return "grid_index: ({one.col_index}, {one.row_index})".format(one=self)
 
-    def on_render(self, screen):
+    def render(self, screen):
         assert (0 <= self.resource <= 4)
         pygame.draw.polygon(screen, RESOURCE_COLOR[self.resource], self.grid_vertexes)
 
@@ -32,7 +37,5 @@ class Territory(render.IRender):
         if self.number not in [-1, 7]:
             screen.blit(text, text_point)
 
-
-
-
-
+    def update(self, event):
+        pass

@@ -1,14 +1,14 @@
 import territory
 import city
 import random
-import math
 import player
+import map_
 from constants import *
 
-tiles = []
-token_numbers = []
+grids = []
 corners = []
 players = []
+token_numbers = []
 
 def init(game_size):
     max_cols, max_rows = game_size[0], game_size[1]
@@ -18,7 +18,7 @@ def init(game_size):
 
     # 生成Grids - 最外圈为地图边界
     for x in range(max_cols + 2):
-        tiles.append([])
+        grids.append([])
         # 边界地块也要生成出来
         for y in range(max_rows + 2):
             random_resource = 0
@@ -27,14 +27,15 @@ def init(game_size):
                 random_resource = random.randint(1, 4)
                 random_index = random.randint(0, len(token_numbers) - 1)
                 tmp_token_number = token_numbers.pop(random_index)
-            tiles[x].append(territory.Territory(x, y, random_resource, tmp_token_number))
+            grids[x].append(territory.Territory(x, y, random_resource, tmp_token_number))
 
 
     # 生成 Corners
     for x in range(max_cols):
         for y in range(max_rows):
-            self_grid = get_grid(x + 1, y + 1)
-            adjcents = get_territories_of_adjacents(self_grid)
+            self_grid = get_grid([x + 1, y + 1])
+            adj_index = map_.get_territories_index_of_adjacents(x + 1, y + 1)
+            adjcents = [get_grid(element) for element in adj_index]
 
             try_add_to_list(city.City([adjcents[0], adjcents[1], self_grid]))
             try_add_to_list(city.City([adjcents[1], adjcents[2], self_grid]))
@@ -48,7 +49,7 @@ def init(game_size):
 
 
 def update(screen):
-    for tile_col in tiles:
+    for tile_col in grids:
         for tile in tile_col:
             tile.on_render(screen)
     for land in corners:
@@ -75,49 +76,9 @@ def try_add_to_list(land):
         corners.append(land)
 
 
-def get_land_by_three_territory(territory1_pos, territory2_pos, territory3_pos):
-    result = None
-    return result
+def get_grid(pos):
+    return grids[pos[0]][pos[1]]
 
-
-def get_lands_of_one_territory(territory_pos):
-    result = []
-    return result
-
-
-def get_grid(pos_col, pos_row):
-    return tiles[pos_col][pos_row]
-
-
-def get_territory_index_of_adjacents(territory):
-    # left_down,left_up,up,right_up,right_down,down
-    adjacents = get_territories_of_adjacents(territory)
-    for i in range(len(adjacents)):
-        adjacents[i] = (adjacents[i].col_index, adjacents[i].row_index)
-    return adjacents
-
-
-def get_territories_of_adjacents(territory):
-    # oder left_down,left_up,up,right_up,right_down,down
-    # 顺序 左下，左上，上，右上，右下，下
-    adjacents = [0, 0, 0, 0, 0, 0]
-    # even_col
-    if territory.col_index % 2 == 0:
-        adjacents[0] = get_grid(territory.col_index - 1, territory.row_index)
-        adjacents[1] = get_grid(territory.col_index - 1, territory.row_index - 1)
-        adjacents[2] = get_grid(territory.col_index, territory.row_index - 1)
-        adjacents[3] = get_grid(territory.col_index + 1, territory.row_index - 1)
-        adjacents[4] = get_grid(territory.col_index + 1, territory.row_index)
-        adjacents[5] = get_grid(territory.col_index, territory.row_index + 1)
-    # odd_col
-    else:
-        adjacents[0] = get_grid(territory.col_index - 1, territory.row_index + 1)
-        adjacents[1] = get_grid(territory.col_index - 1, territory.row_index)
-        adjacents[2] = get_grid(territory.col_index, territory.row_index - 1)
-        adjacents[3] = get_grid(territory.col_index + 1, territory.row_index)
-        adjacents[4] = get_grid(territory.col_index + 1, territory.row_index + 1)
-        adjacents[5] = get_grid(territory.col_index, territory.row_index + 1)
-    return adjacents
 
 def roll_dice():
     result = 0
@@ -125,46 +86,16 @@ def roll_dice():
         result = result + random.randint(1, 6)
     return result
 
-def get_grid_middle_point(grid_pos_col, grid_pos_row):
-    middle_point = [0, 0]
-    if grid_pos_col % 2 == 0:
-        middle_point[0] = MIDDLE_POINT_OF_FIRST_GRID[0] + (grid_pos_col * HEX_SIZE * 3 / 2) * HEX_SPACING_RATE
-        middle_point[1] = MIDDLE_POINT_OF_FIRST_GRID[1] + (grid_pos_row * math.sqrt(3) * HEX_SIZE ) * HEX_SPACING_RATE
-    else:
-        middle_point[0] = MIDDLE_POINT_OF_FIRST_GRID[0] + (HEX_SIZE * 3 / 2 + (grid_pos_col - 1) * HEX_SIZE * 3/2) * HEX_SPACING_RATE
-        middle_point[1] = MIDDLE_POINT_OF_FIRST_GRID[1] + (math.sqrt(3) * HEX_SIZE / 2 + grid_pos_row * math.sqrt(3) * HEX_SIZE) * HEX_SPACING_RATE
-        #
-    return middle_point
 
+def update(event, screen):
+    for grid_cols in grids:
+        for grid in grid_cols:
+            grid.update(event)
+            grid.render(screen)
+    for city in corners:
+        city.update(event)
+        city.render(screen)
+    for player in players:
+        player.update(event)
+        player.render(screen)
 
-def get_grid_vertex(middle_point=(100, 100)):
-    vertex_coordinates = []
-    left_point = (middle_point[0] - HEX_SIZE, middle_point[1])
-    left_bottom_point = (middle_point[0] - HEX_SIZE / 2, middle_point[1] + math.sqrt(3) / 2 * HEX_SIZE)
-    right_bottom_point = (middle_point[0] + HEX_SIZE / 2, middle_point[1] + math.sqrt(3) / 2 * HEX_SIZE)
-    right_point = (middle_point[0] + HEX_SIZE, middle_point[1])
-    right_up_point = (middle_point[0] + HEX_SIZE / 2, middle_point[1] - math.sqrt(3) / 2 * HEX_SIZE)
-    left_up_point = (middle_point[0] - HEX_SIZE / 2, middle_point[1] - math.sqrt(3) / 2 * HEX_SIZE)
-    vertex_coordinates.append(left_point)
-    vertex_coordinates.append(left_bottom_point)
-    vertex_coordinates.append(right_bottom_point)
-    vertex_coordinates.append(right_point)
-    vertex_coordinates.append(right_up_point)
-    vertex_coordinates.append(left_up_point)
-    return vertex_coordinates
-
-def get_vertex_point(land):
-    vertex_coordinate = [0,0]
-
-    t1 = land.adjcents_territory[0]
-    t2 = land.adjcents_territory[1]
-    t3 = land.adjcents_territory[2]
-
-    p1 = get_grid_middle_point(t1.col_index, t1.row_index)
-    p2 = get_grid_middle_point(t2.col_index, t2.row_index)
-    p3 = get_grid_middle_point(t3.col_index, t3.row_index)
-
-    vertex_coordinate[0] = int((p1[0] + p2[0] + p3[0])/3)
-    vertex_coordinate[1] = int((p1[1] + p2[1] + p3[1])/3)
-
-    return vertex_coordinate

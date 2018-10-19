@@ -3,7 +3,7 @@ import pygame
 from constants import *
 
 
-class City(render.IRender):
+class City():
     def __init__(self, adjcent_territories):
         assert len(adjcent_territories) == 3
         self.adjcent_territories = sorted(adjcent_territories, key=lambda x: x.guid)
@@ -23,7 +23,9 @@ class City(render.IRender):
             self._coordinate = [int((p1[0] + p2[0] + p3[0])/3), int((p1[1] + p2[1] + p3[1])/3)]
         return self._coordinate
 
-    def on_render(self, screen):
+    def render(self, screen):
         vertex_coordinate = self.get_coordinate()
         pygame.draw.circle(screen, WHITE, vertex_coordinate, VERTEX_SIZE)
 
+    def update(self, event):
+        pass
