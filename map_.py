@@ -1,4 +1,3 @@
-import pygame
 from constants import *
 import math
 
@@ -76,6 +75,7 @@ def calc_grid_middle_point_coordinate(grid_pos_col, grid_pos_row):
         middle_point[1] = MIDDLE_POINT_OF_FIRST_GRID[1] + (math.sqrt(3) * HEX_SIZE / 2 + grid_pos_row * math.sqrt(3) * HEX_SIZE) * HEX_SPACING_RATE
         #
     return middle_point
+
 
 def get_land_by_three_territory(territory1_pos, territory2_pos, territory3_pos):
     result = None

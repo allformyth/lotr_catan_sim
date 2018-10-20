@@ -1,4 +1,3 @@
-import render
 import pygame
 from constants import *
 

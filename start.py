@@ -1,26 +1,22 @@
 import pygame
 import world
-import render
+import ui
 from constants import *
 
 
-def game_init():
-    pygame.init()
-    world.init(GAME_SIZE)
-    render.init()
-
-
 def start():
-    game_init()
-    screen = pygame.display.get_surface()
+    pygame.init()
+    pygame.display.set_caption(GAME_NAME)
+    screen = pygame.display.set_mode(SCREEN_SIZE)
+    world.init(GAME_SIZE)
     clock = pygame.time.Clock()
     game_exit = False
     while not game_exit:
         for event in pygame.event.get():
             if event.type == QUIT:
                 game_exit = True
-        world.update(event, screen)
-
+            world.update(event, screen)
+            ui.update(event, screen)
         pygame.display.update()
         clock.tick(FPS)
     pygame.quit()

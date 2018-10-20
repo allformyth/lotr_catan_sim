@@ -1,7 +1,4 @@
-import render
 import pygame
-import world
-import math
 import map_
 from constants import *
 
